@@ -32,7 +32,7 @@ func main() {
 				Name:    "sort_column",
 				Aliases: []string{"s"},
 				Value:   "Count",
-				Usage:   "The column to sort results by.",
+				Usage:   "The column to sort results by. (Directory, Count, Size)",
 			},
 			&cli.BoolFlag{
 				Name:     "only_root",
