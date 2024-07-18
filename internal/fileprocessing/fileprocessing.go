@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"file-counter/internal/types"
 	"github.com/briandowns/spinner"
 	"github.com/schollz/progressbar/v3"
-	"file-counter/internal/types"
 )
 
 func isFileType(ext string, fileType types.FileType) bool {
@@ -27,6 +27,10 @@ func processDirectory(rootDir string, onlyRoot bool, fileType types.FileType, ba
 
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
+			if os.IsPermission(err) {
+				// skip permission denied errors
+				return filepath.SkipDir
+			}
 			return err
 		}
 
@@ -70,6 +74,10 @@ func GetSubdirectoriesFileCount(rootDir string, sortDescending bool, sortColumn 
 	totalFiles := 0
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
+			if os.IsPermission(err) {
+				// skip permission denied errors
+				return filepath.SkipDir
+			}
 			return err
 		}
 		if !info.IsDir() {
