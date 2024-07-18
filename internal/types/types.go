@@ -8,6 +8,7 @@ const (
 	Video
 	Image
 	Archive
+	Documents
 )
 
 // FileInfo stores information about files in a directory
@@ -49,6 +50,11 @@ var (
 		Archive: {
 			".zip": true, ".rar": true, ".7z": true, ".tar": true, ".gz": true,
 			".bz2": true, ".xz": true, ".iso": true, ".tgz": true, ".tbz2": true,
+		},
+		Documents: {
+			".docx": true, ".doc": true, ".pdf": true, ".txt": true, ".rtf": true,
+			".odt": true, ".xlsx": true, ".xls": true, ".pptx": true, ".ppt": true,
+			".csv": true, ".md": true, ".pages": true,
 		},
 	}
 )
