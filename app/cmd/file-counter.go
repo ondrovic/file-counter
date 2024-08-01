@@ -5,10 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"file-counter/internal/fileprocessing"
 	"file-counter/internal/types"
 	"file-counter/internal/utils"
+
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -17,29 +18,29 @@ var rootCmd = &cobra.Command{
 	Run:   run,
 }
 
-var rootDir string
-var sortDescending bool
-var sortColumn string
-var onlyRoot bool
-var fileTypeStr string
+var (
+	options = types.CommandOptions{}
+)
 
 func init() {
-	rootCmd.Flags().StringVarP(&rootDir, "root_dir", "r", "", "The root directory to process")
+	rootCmd.Flags().StringVarP(&options.RootDirectory, "root_dir", "r", "", "The root directory to process")
 	rootCmd.MarkFlagRequired("root_dir")
 
-	rootCmd.Flags().BoolVarP(&sortDescending, "sort_descending", "d", false, "Whether to sort results by count in descending order")
-	
-	rootCmd.Flags().StringVarP(&sortColumn, "sort_column", "s", "Count", "The column to sort results by")
+	rootCmd.Flags().BoolVarP(&options.SortDescending, "sort_descending", "d", false, "Whether to sort results by count in descending order")
+
+	rootCmd.Flags().StringVarP(&options.SortColumn, "sort_column", "s", "Count", "The column to sort results by")
 	rootCmd.RegisterFlagCompletionFunc("sort_column", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"Directory", "Count", "Size"}, cobra.ShellCompDirectiveNoFileComp
 	})
 
-	rootCmd.Flags().BoolVarP(&onlyRoot, "only_root", "o", false, "Will only count files in the root directory")
+	rootCmd.Flags().BoolVarP(&options.OnlyRoot, "only_root", "o", false, "Will only count files in the root directory")
 
-	rootCmd.Flags().StringVarP(&fileTypeStr, "file_type", "t", "any", "File type to count")
+	rootCmd.Flags().StringVarP(&options.FilterType, "file_type", "t", "any", "File type to count")
 	rootCmd.RegisterFlagCompletionFunc("file_type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"any", "video", "image", "archive", "documents"}, cobra.ShellCompDirectiveNoFileComp
 	})
+
+	rootCmd.Flags().BoolVarP(&options.GroupByParent, "group_parent", "g", true, "Will group folders by parent")
 
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
@@ -86,8 +87,9 @@ func run(cmd *cobra.Command, args []string) {
 	utils.ClearConsole()
 
 	fileType := types.Any
-	switch strings.ToLower(fileTypeStr) {
+	switch strings.ToLower(options.FilterType) {
 	case "video":
+	case "videos":
 		fileType = types.Video
 	case "image":
 		fileType = types.Image
@@ -97,7 +99,7 @@ func run(cmd *cobra.Command, args []string) {
 		fileType = types.Documents
 	}
 
-	results, totalSize, totalCount, err := fileprocessing.GetSubdirectoriesFileCount(rootDir, sortDescending, sortColumn, onlyRoot, fileType)
+	results, totalSize, totalCount, err := fileprocessing.GetSubdirectoriesFileCount(&options, fileType)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

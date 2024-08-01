@@ -23,6 +23,16 @@ type DirectoryResult struct {
 	FileInfo
 }
 
+// CommandOptions represents the command line options
+type CommandOptions struct {
+	RootDirectory  string
+	SortDescending bool
+	SortColumn     string
+	OnlyRoot       bool
+	FilterType     string
+	GroupByParent   bool
+}
+
 var (
 	SizeUnits = []struct {
 		Name  string
