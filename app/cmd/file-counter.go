@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -9,6 +8,7 @@ import (
 	"file-counter/internal/types"
 	"file-counter/internal/utils"
 
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -101,12 +101,12 @@ func run(cmd *cobra.Command, args []string) {
 
 	results, totalSize, totalCount, err := fileprocessing.GetSubdirectoriesFileCount(&options, fileType)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		pterm.Error.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 
 	if len(results) == 0 {
-		fmt.Println("No Results Found")
+		pterm.Info.Printf("%v results found\n", len(results))
 		return
 	}
 
@@ -115,7 +115,7 @@ func run(cmd *cobra.Command, args []string) {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		pterm.Error.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

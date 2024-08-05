@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 	"file-counter/internal/types"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/pterm/pterm"
 )
 
 func ClearConsole() {
@@ -21,7 +21,8 @@ func ClearConsole() {
 	case "windows":
 		clearCmd = exec.Command("cmd", "/c", "cls")
 	default:
-		fmt.Println("Unsupported platform")
+		// fmt.Println("Unsupported platform")
+		pterm.Info.Println("Unsupported platform")
 		return
 	}
 
@@ -32,7 +33,7 @@ func ClearConsole() {
 func FormatFileSize(size int64) string {
 	for _, unit := range types.SizeUnits {
 		if size >= unit.Value {
-			return fmt.Sprintf("%d %s", size/unit.Value, unit.Name)
+			return pterm.Sprintf("%d %s", size/unit.Value, unit.Name)
 		}
 	}
 	return "0 B"
