@@ -33,8 +33,8 @@ func init() {
 		return []string{"Directory", "Count", "Size"}, cobra.ShellCompDirectiveNoFileComp
 	})
 
-	rootCmd.Flags().BoolVarP(&options.OnlyRoot, "only_root", "o", false, "Will only count files in the root directory")
-
+	rootCmd.Flags().BoolVarP(&options.OnlyRoot, "only_root", "o", false, "Will only display results as the root folders")
+	rootCmd.Flags().BoolVarP(&options.OnlyVideoRoot, "only_video_root", "v", false, "Only count files in the root of Videos folders")
 	rootCmd.Flags().StringVarP(&options.FilterType, "file_type", "t", "any", "File type to count")
 	rootCmd.RegisterFlagCompletionFunc("file_type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"any", "video", "image", "archive", "documents"}, cobra.ShellCompDirectiveNoFileComp

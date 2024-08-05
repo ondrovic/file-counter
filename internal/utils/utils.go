@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 
-	"github.com/jedib0t/go-pretty/v6/table"
 	"file-counter/internal/types"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 func ClearConsole() {
@@ -36,13 +38,27 @@ func FormatFileSize(size int64) string {
 	return "0 B"
 }
 
+func formatPath(path string) string {
+	switch runtime.GOOS {
+    case "windows":
+        // Convert to Windows style paths (with backslashes)
+        return filepath.ToSlash(path)
+    case "linux", "darwin":
+        // Convert to Unix style paths (with forward slashes)
+        return filepath.FromSlash(path)
+    default:
+        // Default to Unix style paths
+        return path
+    } 
+}
+
 func RenderResultsTable(results []types.DirectoryResult, totalSize int64, totalCount int) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"Directory", "Count", "Size"})
 	for _, result := range results {
 		t.AppendRow(table.Row{
-			result.Directory,
+			formatPath(result.Directory),
 			result.Count,
 			FormatFileSize(result.Size),
 		})

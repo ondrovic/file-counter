@@ -29,8 +29,9 @@ type CommandOptions struct {
 	SortDescending bool
 	SortColumn     string
 	OnlyRoot       bool
+	OnlyVideoRoot  bool
 	FilterType     string
-	GroupByParent   bool
+	GroupByParent  bool
 }
 
 var (
@@ -47,6 +48,9 @@ var (
 	}
 
 	FileExtensions = map[FileType]map[string]bool{
+		Any: {
+			"*.*": true,
+		},
 		Video: {
 			".mp4": true, ".avi": true, ".mkv": true, ".mov": true, ".wmv": true,
 			".flv": true, ".webm": true, ".m4v": true, ".mpg": true, ".mpeg": true,
