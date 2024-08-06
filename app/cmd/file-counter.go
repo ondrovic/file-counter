@@ -2,12 +2,13 @@ package main
 
 import (
 	"os"
-	"strings"
+	"runtime"
 
 	"file-counter/internal/fileprocessing"
 	"file-counter/internal/types"
 	"file-counter/internal/utils"
 
+	commonUtils "github.com/ondrovic/common/utils"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -84,20 +85,9 @@ PowerShell:
 }
 
 func run(cmd *cobra.Command, args []string) {
-	utils.ClearConsole()
+	commonUtils.ClearTerminalScreen(runtime.GOOS)
 
-	fileType := types.Any
-	switch strings.ToLower(options.FilterType) {
-	case "video":
-	case "videos":
-		fileType = types.Video
-	case "image":
-		fileType = types.Image
-	case "archive":
-		fileType = types.Archive
-	case "documents":
-		fileType = types.Documents
-	}
+	fileType := commonUtils.ToFileType(options.FilterType)
 
 	results, totalSize, totalCount, err := fileprocessing.GetSubdirectoriesFileCount(&options, fileType)
 	if err != nil {

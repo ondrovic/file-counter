@@ -7,30 +7,14 @@ import (
 	"strings"
 	"sync"
 
-    "file-counter/internal/types"
+	"file-counter/internal/types"
 
+	commonTypes "github.com/ondrovic/common/types"
+	commonUtils "github.com/ondrovic/common/utils"
 	"github.com/pterm/pterm"
-	
 )
 
-// isExtensionValid checks if the file's extension is allowed for a given file type.
-func isExtensionValid(fileType types.FileType, path string) bool {
-	ext := strings.ToLower(filepath.Ext(path))
-	extensions, exists := types.FileExtensions[fileType]
-	if !exists {
-		return false
-	}
-
-	// Check for wildcard entry (Any)
-	if _, found := extensions["*.*"]; found {
-		return true
-	}
-
-	// Check if the file extension is explicitly allowed
-	return extensions[ext]
-}
-
-func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType types.FileType) ([]types.DirectoryResult, int64, int, error) {
+func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTypes.FileType) ([]types.DirectoryResult, int64, int, error) {
 	spinner, _ := pterm.DefaultSpinner.Start("Counting files...")
 
 	options.RootDirectory = filepath.Clean(options.RootDirectory)
@@ -115,7 +99,7 @@ func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType types.Fi
 	return directoryResults, totalSize, totalCount, nil
 }
 
-func processDirectory(options *types.CommandOptions, fileType types.FileType, progressBar *pterm.ProgressbarPrinter) (map[string]*types.FileInfo, error) {
+func processDirectory(options *types.CommandOptions, fileType commonTypes.FileType, progressBar *pterm.ProgressbarPrinter) (map[string]*types.FileInfo, error) {
 	results := make(map[string]*types.FileInfo)
 	var mutex sync.Mutex
 
@@ -168,7 +152,7 @@ func processDirectory(options *types.CommandOptions, fileType types.FileType, pr
 				countDir = filepath.Dir(countDir)
 			}
 
-			if isExtensionValid(fileType, path) {
+			if commonUtils.IsExtensionValid(fileType, path) {
 				mutex.Lock()
 				if _, exists := results[countDir]; !exists {
 					results[countDir] = &types.FileInfo{}
