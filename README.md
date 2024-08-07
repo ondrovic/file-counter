@@ -1,2 +1,2 @@
-# go-file-counter
+# file-counter
 Cli to get file counts 
