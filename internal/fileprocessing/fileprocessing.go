@@ -1,8 +1,10 @@
 package fileprocessing
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -14,6 +16,8 @@ import (
 	"github.com/pterm/pterm"
 )
 
+var semaphore = make(chan struct{}, runtime.NumCPU())
+
 func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTypes.FileType) ([]types.DirectoryResult, int64, int, error) {
 	spinner, _ := pterm.DefaultSpinner.Start("Counting files...")
 
@@ -22,6 +26,13 @@ func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTy
 	totalFiles := 0
 	var countFiles func(string, bool) error
 	countFiles = func(dir string, isVideoRoot bool) error {
+		// Acquire a slot in the semaphore
+		semaphore <- struct{}{}
+		defer func() {
+			// Release the slot when the function returns
+			<-semaphore
+		}()
+
 		entries, err := os.ReadDir(dir)
 		if err != nil {
 			if os.IsPermission(err) {
@@ -55,7 +66,7 @@ func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTy
 	}
 	spinner.Success("File counting complete")
 
-	progressBar, _ := pterm.DefaultProgressbar.WithTotal(totalFiles).WithTitle("Processing files").Start()
+	progressBar, _ := pterm.DefaultProgressbar.WithTotal(totalFiles).WithTitle("Processing files").WithRemoveWhenDone(true).Start()
 
 	results, err := processDirectory(options, fileType, progressBar)
 	if err != nil {
@@ -102,16 +113,23 @@ func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTy
 func processDirectory(options *types.CommandOptions, fileType commonTypes.FileType, progressBar *pterm.ProgressbarPrinter) (map[string]*types.FileInfo, error) {
 	results := make(map[string]*types.FileInfo)
 	var mutex sync.Mutex
+	var wg sync.WaitGroup
+	errChan := make(chan error, 100)
 
-	var processDir func(string, bool) error
-	processDir = func(dir string, isVideoRoot bool) error {
+	var processDir func(string, bool)
+	processDir = func(dir string, isVideoRoot bool) {
+		defer wg.Done()
+
 		entries, err := os.ReadDir(dir)
 		if err != nil {
-			if os.IsPermission(err) {
-				return nil // Skip this directory
+			if !os.IsPermission(err) {
+				errChan <- fmt.Errorf("error reading directory %s: %w", dir, err)
 			}
-			return err
+			return
 		}
+
+		dirCount := 0
+		dirSize := int64(0)
 
 		for _, entry := range entries {
 			path := filepath.Join(dir, entry.Name())
@@ -119,18 +137,15 @@ func processDirectory(options *types.CommandOptions, fileType commonTypes.FileTy
 			if entry.IsDir() {
 				if options.OnlyVideoRoot {
 					if entry.Name() == "Videos" {
-						if err := processDir(path, true); err != nil {
-							return err
-						}
+						wg.Add(1)
+						go processDir(path, true)
 					} else if !isVideoRoot {
-						if err := processDir(path, false); err != nil {
-							return err
-						}
+						wg.Add(1)
+						go processDir(path, false)
 					}
 				} else {
-					if err := processDir(path, isVideoRoot); err != nil {
-						return err
-					}
+					wg.Add(1)
+					go processDir(path, isVideoRoot)
 				}
 				continue
 			}
@@ -142,31 +157,45 @@ func processDirectory(options *types.CommandOptions, fileType commonTypes.FileTy
 
 			info, err := entry.Info()
 			if err != nil {
-				return err
-			}
-
-			countDir := dir
-			if options.OnlyRoot {
-				countDir = options.RootDirectory
-			} else if options.GroupByParent {
-				countDir = filepath.Dir(countDir)
+				errChan <- fmt.Errorf("error getting file info for %s: %w", path, err)
+				continue
 			}
 
 			if commonUtils.IsExtensionValid(fileType, path) {
-				mutex.Lock()
-				if _, exists := results[countDir]; !exists {
-					results[countDir] = &types.FileInfo{}
-				}
-				results[countDir].Count++
-				results[countDir].Size += info.Size()
-				mutex.Unlock()
+				dirCount++
+				dirSize += info.Size()
 			}
 
 			progressBar.Increment()
 		}
-		return nil
+
+		if dirCount > 0 {
+			mutex.Lock()
+			if _, exists := results[dir]; !exists {
+				results[dir] = &types.FileInfo{}
+			}
+			results[dir].Count += dirCount
+			results[dir].Size += dirSize
+			mutex.Unlock()
+		}
 	}
 
-	err := processDir(options.RootDirectory, false)
-	return results, err
+	wg.Add(1)
+	go processDir(options.RootDirectory, false)
+
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+
+	var errors []error
+	for err := range errChan {
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return results, fmt.Errorf("encountered %d errors during processing: %v", len(errors), errors)
+	}
+
+	return results, nil
 }

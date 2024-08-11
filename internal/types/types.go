@@ -17,8 +17,6 @@ type CommandOptions struct {
 	RootDirectory  string
 	SortDescending bool
 	SortColumn     string
-	OnlyRoot       bool
 	OnlyVideoRoot  bool
 	FilterType     string
-	GroupByParent  bool
 }
