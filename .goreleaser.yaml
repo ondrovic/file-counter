@@ -1,36 +1,44 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
-
 version: 2
 
 project_name: file-counter
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
-    # - go mod tidy
-    # # Format code
-    # - go fmt ./...
-    # # Vet code
-    # - go vet ./...
+    # Do the formatting, vetting, linting
     - make check-quality
     # Generate
     - go generate ./...
 
 builds:
-  - id: file-counter
+  - id: file-counter-windows
     main: ./app/cmd/counter/file-counter.go
     env:
       - CGO_ENABLED=0
     goos:
       - windows
-      - darwin
+    goarch:
+      - amd64
+    ldflags: -s -w
+
+  - id: file-counter-linux
+    main: ./app/cmd/counter/file-counter.go
+    env:
+      - CGO_ENABLED=0
+    goos:
       - linux
+    goarch:
+      - amd64
+    ldflags: -s -w
+
+  - id: file-counter-macos
+    main: ./app/cmd/counter/file-counter.go
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    ldflags: -s -w
 
 archives:
   - id: file-counter
@@ -38,20 +46,15 @@ archives:
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+      {{- if eq .Os "darwin" }}MacOs
+      {{- else }}{{ title .Os }}{{ end }}_
+      {{- if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}
     # use zip for windows archives
     format_overrides:
       - goos: windows
         format: zip
 checksum:
   name_template: "checksums.txt"
-# snapshot:
-#   name_template: "{{ .Tag }}-next"
-#   skip: true
 
 changelog:
   sort: asc
