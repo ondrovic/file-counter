@@ -23,7 +23,9 @@ jobs:
         run: go mod download
 
       - name: Install go-covr
-        run: go install github.com/mattn/go-covr@latest
+        run: |
+          echo "::add-mask::$GITHUB_TOKEN"
+          go install github.com/mattn/go-covr@latest
 
       - name: Run tests
         run: go test -v -coverprofile=coverage.out ./...
@@ -38,8 +40,8 @@ jobs:
           badge: true
           fail_below_min: true
           format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
+          hide_branch_rate: true
+          hide_complexity: false
           indicators: true
           output: both
 
