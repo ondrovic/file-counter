@@ -13,30 +13,24 @@ project_name: file-counter
 before:
   hooks:
     # You may remove this if you don't use go modules.
-    - go mod tidy
-    # Format code
-    - go fmt ./...
-    # Vet code
-    - go vet ./...
-    
+    # - go mod tidy
+    # # Format code
+    # - go fmt ./...
+    # # Vet code
+    # - go vet ./...
+    - make check-quality
     # Generate
     - go generate ./...
 
 builds:
-  - id: file-counter-linux
-    main: ./app/cmd/counter/file-counter.go
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-
-  - id: file-counter-windows-darwin
+  - id: file-counter
     main: ./app/cmd/counter/file-counter.go
     env:
       - CGO_ENABLED=0
     goos:
       - windows
       - darwin
+      - linux
 
 archives:
   - id: file-counter
@@ -55,8 +49,10 @@ archives:
         format: zip
 checksum:
   name_template: "checksums.txt"
-snapshot:
-  name_template: "{{ .Tag }}-next"
+# snapshot:
+#   name_template: "{{ .Tag }}-next"
+#   skip: true
+
 changelog:
   sort: asc
   filters:
