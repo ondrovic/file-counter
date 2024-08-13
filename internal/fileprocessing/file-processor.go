@@ -1,7 +1,6 @@
 package fileprocessing
 
 import (
-
 	"file-counter/internal/types"
 	"file-counter/internal/utils"
 	"fmt"
