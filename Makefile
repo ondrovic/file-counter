@@ -1,6 +1,6 @@
 export GO111MODULE=on
 GOOS := $(shell go env GOOS)
-VERSION := $(shell git-semv now)
+VERSION := $(shell git describe --tags --always)
 BUILD_FLAGS := -ldflags="-X 'main.version=$(VERSION)'"
 APP_PATH := .\app\cmd\counter\file-counter.go
 # determins the variables based on GOOS 
