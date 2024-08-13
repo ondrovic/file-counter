@@ -4,8 +4,8 @@ project_name: file-counter
 
 before:
   hooks:
-    # Do the formatting, vetting, linting
-    - make check-quality
+    # Tidy
+    - go mod tidy
     # Generate
     - go generate ./...
 
