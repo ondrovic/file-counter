@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"runtime"
+	"strings"
 
 	"file-counter/internal/types"
 
@@ -10,7 +11,17 @@ import (
 	commonUtils "github.com/ondrovic/common/utils"
 )
 
-// RenderResultsToTable
+// ToLower converts a string ToLower.
+func ToLower(s string) string {
+	return strings.ToLower(s)
+}
+
+// Contains returns if a string contains and item.
+func Contains(s, i string) bool {
+	return strings.Contains(s, i)
+}
+
+// RenderResultsToTable.
 func RenderResultsTable(results []types.DirectoryResult, totalSize int64, totalCount int) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)

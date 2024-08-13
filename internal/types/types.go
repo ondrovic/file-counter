@@ -1,22 +1,23 @@
 package types
 
-// FileInfo stores information about files in a directory
+// FileInfo stores information about files in a directory.
 type FileInfo struct {
 	Count int
 	Size  int64
 }
 
-// DirectoryResult represents the result for a directory
+// DirectoryResult represents the result for a directory.
 type DirectoryResult struct {
 	Directory string
 	FileInfo
 }
 
-// CommandOptions represents the command line options
+// CommandOptions represents the command line options.
 type CommandOptions struct {
-	RootDirectory  string
-	SortDescending bool
-	SortColumn     string
+	FileType       string
+	FilterName     string
 	OnlyVideoRoot  bool
-	FilterType     string
+	RootDirectory  string
+	SortColumn     string
+	SortDescending bool
 }
