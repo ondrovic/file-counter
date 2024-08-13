@@ -9,6 +9,8 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +46,3 @@ jobs:
           hide_complexity: false
           indicators: true
           output: both
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
