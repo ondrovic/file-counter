@@ -46,16 +46,7 @@ func GetSubdirectoriesFileCount(options *types.CommandOptions, fileType commonTy
 		return nil, 0, 0, err
 	}
 
-	directoryResults = make([]types.DirectoryResult, 0, len(results))
-
-	for dir, info := range results {
-		directoryResults = append(directoryResults, types.DirectoryResult{
-			Directory: dir,
-			FileInfo:  *info,
-		})
-		totalSize += info.Size
-		totalCount += info.Count
-	}
+	directoryResults, totalSize, totalCount = formatResults(results, options)
 
 	sortDirectoryResults(directoryResults, options)
 
@@ -215,6 +206,37 @@ func collectErrors(errChan <-chan error) error {
 	}
 
 	return nil
+}
+
+// formatResults processes the results based on the OnlRoot option.
+func formatResults(files map[string]*types.FileInfo, options *types.CommandOptions) (directoryResults []types.DirectoryResult, totalSize int64, totalCount int) {
+	// Preallocate memory for directoryResults if not in OnlyRoot mode
+	directoryResults = make([]types.DirectoryResult, 0, len(files))
+	totalCount = 0
+	totalSize = int64(0)
+
+	for dir, info := range files {
+		totalCount += info.Count
+		totalSize += info.Size
+
+		// Only append individual results if not in OnlyRoot mode
+		if !options.OnlyRoot {
+			directoryResults = append(directoryResults, types.DirectoryResult{
+				Directory: dir,
+				FileInfo:  *info,
+			})
+		}
+	}
+
+	// If OnlyRoot is true, add a single summary entry
+	if options.OnlyRoot {
+		directoryResults = append(directoryResults, types.DirectoryResult{
+			Directory: options.RootDirectory,
+			FileInfo:  types.FileInfo{Count: totalCount, Size: totalSize},
+		})
+	}
+
+	return directoryResults, totalSize, totalCount
 }
 
 func sortDirectoryResults(directoryResults []types.DirectoryResult, options *types.CommandOptions) {

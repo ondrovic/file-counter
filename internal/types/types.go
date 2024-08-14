@@ -16,6 +16,7 @@ type DirectoryResult struct {
 type CommandOptions struct {
 	FileType       string
 	FilterName     string
+	OnlyRoot       bool
 	OnlyVideoRoot  bool
 	RootDirectory  string
 	SortColumn     string

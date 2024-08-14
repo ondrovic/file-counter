@@ -90,6 +90,7 @@ func init() {
 
 	registerBoolFlag(rootCmd, "sort-descending", "d", false, "Whether to sort results by count in descending order", &options.SortDescending)
 	registerStringFlag(rootCmd, "sort-column", "s", "Count", "The column to sort results by\n (Choices: count, directory, size)", &options.SortColumn, nil)
+	registerBoolFlag(rootCmd, "only-root", "r", false, "Only display root folder with count", &options.OnlyRoot)
 	registerBoolFlag(rootCmd, "only-video-root", "o", false, "Only count files in the root of Videos folders", &options.OnlyVideoRoot)
 	registerStringFlag(rootCmd, "file-type", "t", string(commonTypes.FileTypes.Any), "File type to count\n (Choices: any, video, image, archive, documents)", &options.FileType, nil)
 	registerStringFlag(rootCmd, "filter-name", "n", "", "Name to filter by, filters both file and directory", &options.FilterName, nil)
@@ -103,6 +104,20 @@ func init() {
 func runCounter(_ *cobra.Command, args []string) {
 
 	options.RootDirectory = args[0]
+
+	// Check for mutually exclusive flags
+	if options.OnlyRoot {
+		if options.FilterName != "" || options.OnlyVideoRoot {
+			pterm.Error.Println("The flag --only-root (-r) cannot be used with --filter-name (-n) or --only-video-root (-o)")
+			return
+		}
+	} else if options.OnlyVideoRoot && options.FilterName != "" {
+		pterm.Error.Println("The flags --only-video-root (-o) and --filter-name (-n) cannot be used together")
+		return
+	} else if options.OnlyVideoRoot && options.FileType != string(commonTypes.FileTypes.Video) {
+		pterm.Error.Println("The flag --only-video-root (-o) can only be used when --file-type (-t) is set to 'video'")
+		return
+	}
 
 	fileType := commonUtils.ToFileType(options.FileType)
 
