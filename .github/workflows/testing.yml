@@ -21,7 +21,7 @@ jobs:
         with:
           go-version: stable
 
-      - name: Install depednecies
+      - name: Install dependencies
         run: go mod download
 
       - name: Run tests
@@ -36,14 +36,26 @@ jobs:
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: unit.coverage.out
+
   codacy-coverage-reporter:
+    needs: testing
     runs-on: ubuntu-latest
     name: codacy-coverage-reporter
     steps:
       - uses: actions/checkout@v2
+      - name: Download coverage report
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-report
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: unit.coverage.out         
+          coverage-reports: unit.coverage.out
       
