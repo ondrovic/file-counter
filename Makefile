@@ -44,7 +44,7 @@ update-common:
 
 test:
 	make tidy
-	go test -v -timeout 10m ./... -coverprofile=coverage.out -json > report.json || (echo "Tests failed. See report.json for details." && exit 1)
+	go test -v -timeout 10m ./... -coverprofile=unit.coverage.out || (echo "Tests failed. See report.json for details." && exit 1)
 
 coverage:
 	make test
@@ -60,9 +60,9 @@ all:
 
 clean:
 	go clean
-	$(RM) coverage*
-	$(RM) report*
-	$(RM) lint*
+	$(RM) *coverage*
+	$(RM) *report*
+	$(RM) *lint*
 
 vendor:
 	go mod vendor
