@@ -4,15 +4,16 @@ import (
 	"file-counter/internal/types"
 	"file-counter/internal/utils"
 	"fmt"
-	"github.com/pterm/pterm"
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"sync"
+
+	"github.com/pterm/pterm"
 
 	commonTypes "github.com/ondrovic/common/types"
 	commonUtils "github.com/ondrovic/common/utils"
+	commonResults "github.com/ondrovic/common/utils/results"
 )
 
 var semaphore = make(chan struct{}, runtime.NumCPU())
@@ -240,22 +241,5 @@ func formatResults(files map[string]*types.FileInfo, options *types.CommandOptio
 }
 
 func sortDirectoryResults(directoryResults []types.DirectoryResult, options *types.CommandOptions) {
-	sort.Slice(directoryResults, func(i, j int) bool {
-		var less bool
-		switch utils.ToLower(options.SortColumn) {
-		case "directory", "directories":
-			less = directoryResults[i].Directory < directoryResults[j].Directory
-		case "size":
-			less = directoryResults[i].Size < directoryResults[j].Size
-		case "count":
-			less = directoryResults[i].Count < directoryResults[j].Count
-		default:
-			return false
-		}
-
-		if options.SortDescending {
-			return !less
-		}
-		return less
-	})
+	commonResults.GenericSortInterface(directoryResults, options.SortColumn, options.SortDescending)
 }

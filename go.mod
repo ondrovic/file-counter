@@ -3,8 +3,7 @@ module file-counter
 go 1.23.0
 
 require (
-	github.com/jedib0t/go-pretty/v6 v6.5.9
-	github.com/ondrovic/common v0.1.17
+	github.com/ondrovic/common v0.1.21
 	github.com/pterm/pterm v0.12.79
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -19,6 +18,7 @@ require (
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jedib0t/go-pretty/v6 v6.5.9 // indirect
 	github.com/lithammer/fuzzysearch v1.1.8 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect

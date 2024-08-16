@@ -11,6 +11,7 @@ import (
 
 	commonTypes "github.com/ondrovic/common/types"
 	commonUtils "github.com/ondrovic/common/utils"
+	commonResults "github.com/ondrovic/common/utils/results"
 )
 
 var (
@@ -135,7 +136,13 @@ func runCounter(_ *cobra.Command, args []string) {
 		return
 	}
 
-	utils.RenderResultsTable(results, totalSize, totalCount)
+	totalValues := map[string]interface{}{
+		"Directory": "Total",
+		"Count":     totalCount,
+		"Size":      commonUtils.FormatSize(totalSize),
+	}
+
+	commonResults.GenericRenderResultsTableInterface(results, totalValues)
 }
 
 func main() {
