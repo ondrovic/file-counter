@@ -3,7 +3,7 @@ module file-counter
 go 1.23.0
 
 require (
-	github.com/ondrovic/common v0.1.21
+	github.com/ondrovic/common v0.1.23
 	github.com/pterm/pterm v0.12.79
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0

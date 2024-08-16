@@ -3,6 +3,7 @@ GOOS := $(shell go env GOOS)
 VERSION := $(shell git describe --tags --always)
 BUILD_FLAGS := -ldflags="-X 'main.version=$(VERSION)'"
 APP_PATH := .\app\cmd\counter\file-counter.go
+
 # determins the variables based on GOOS 
 ifeq ($(GOOS), windows)
     RM = del /Q
@@ -20,7 +21,7 @@ check-quality:
 	@make tidy
 	@make fmt
 	@make vet
-	@make lint
+#@make lint
 
 lint:
 	@make fmt

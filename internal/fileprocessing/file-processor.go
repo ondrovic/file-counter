@@ -2,7 +2,6 @@ package fileprocessing
 
 import (
 	"file-counter/internal/types"
-	"file-counter/internal/utils"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +13,8 @@ import (
 	commonTypes "github.com/ondrovic/common/types"
 	commonUtils "github.com/ondrovic/common/utils"
 	commonResults "github.com/ondrovic/common/utils/results"
+
+	commonFormatters "github.com/ondrovic/common/utils/formatters"
 )
 
 var semaphore = make(chan struct{}, runtime.NumCPU())
@@ -143,6 +144,9 @@ func shouldProcessSubDir(name string, isVideoRoot bool, options *types.CommandOp
 }
 
 func processFile(entry os.DirEntry, path string, fileType commonTypes.FileType, options *types.CommandOptions) (types.FileInfo, error) {
+	var filterMatch bool
+	var err error
+
 	info, err := entry.Info()
 	if err != nil {
 		return types.FileInfo{}, fmt.Errorf("error getting file info for %s: %w", path, err)
@@ -150,7 +154,24 @@ func processFile(entry os.DirEntry, path string, fileType commonTypes.FileType, 
 
 	// Apply filename filter if provided
 
-	if options.FilterName != "" && (!utils.Contains(utils.ToLower(path), utils.ToLower(options.FilterName))) {
+	pathToLower, err := commonFormatters.ToLower(path)
+	if err != nil {
+		return types.FileInfo{}, err
+	}
+
+	filterNameToLower, err := commonFormatters.ToLower(options.FilterName)
+	if err != nil {
+		return types.FileInfo{}, err
+	}
+
+	if filterNameToLower != "" {
+		filterMatch, err = commonFormatters.Contains(pathToLower, filterNameToLower)
+		if err != nil {
+			return types.FileInfo{}, err
+		}
+	}
+
+	if options.FilterName != "" && !filterMatch {
 		return types.FileInfo{}, nil // Skip the file if it doesn't match the filter
 	}
 

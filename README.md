@@ -5,6 +5,7 @@
 [![CodeQL](https://github.com/ondrovic/file-counter/actions/workflows/codeql.yml/badge.svg)](https://github.com/ondrovic/file-counter/actions/workflows/codeql.yml)
 [![goreleaser](https://github.com/ondrovic/file-counter/actions/workflows/release.yml/badge.svg)](https://github.com/ondrovic/file-counter/actions/workflows/release.yml)
 [![testing](https://github.com/ondrovic/file-counter/actions/workflows/testing.yml/badge.svg)](https://github.com/ondrovic/file-counter/actions/workflows/testing.yml)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 # file-counter
 Cli to get file counts based on criteria
