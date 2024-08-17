@@ -102,7 +102,7 @@ func init() {
 	registerBoolFlag(rootCmd, "only-count-video-root", "o", false, "Only count files in the root of Videos folders", &options.OnlyCountVideoRoot)
 	registerStringFlag(rootCmd, "file-type", "t", string(commonTypes.FileTypes.Any), "File type to count\n (Choices: any, video, image, archive, documents)", &options.FileType, nil)
 	registerStringFlag(rootCmd, "filter-name", "n", "", "Name to filter by, filters both file and directory", &options.FilterName, nil)
-	registerBoolFlag(rootCmd, "display-detailed-results", "l", false, "Display detailed results", &options.OnlyCountVideoRoot)
+	// registerBoolFlag(rootCmd, "display-detailed-results", "l", false, "Display detailed results", &options.DisplayDetailedResults)
 
 	rootCmd.MarkFlagsMutuallyExclusive("only-display-root", "only-count-video-root")
 
