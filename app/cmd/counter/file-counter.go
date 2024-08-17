@@ -104,7 +104,7 @@ func init() {
 	registerStringFlag(rootCmd, "filter-name", "n", "", "Name to filter by, filters both file and directory", &options.FilterName, nil)
 	registerBoolFlag(rootCmd, "display-detailed-results", "l", false, "Display detailed results", &options.OnlyCountVideoRoot)
 
-	rootCmd.MarkFlagsMutuallyExclusive("only-root", "only-video-root")
+	rootCmd.MarkFlagsMutuallyExclusive("only-display-root", "only-count-video-root")
 
 	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
 		pterm.Error.Print(err)
@@ -117,7 +117,7 @@ func runCounter(cmd *cobra.Command, args []string) {
 
 	options.RootDirectory = args[0]
 
-	onlyVideoRoot, err := cmd.Flags().GetBool("only-video-root")
+	onlyCountVideoRoot, err := cmd.Flags().GetBool("only-count-video-root")
 	if err != nil {
 		pterm.Error.Println("problem getting flag", err)
 		return
@@ -129,13 +129,13 @@ func runCounter(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if onlyVideoRoot && !validType {
-		pterm.Error.Println("The flags --only-video-root (-o) and --file-type (-t) cannot be used together")
+	if onlyCountVideoRoot && !validType {
+		pterm.Error.Println("The flags --only-count-video-root (-o) and --file-type (-t) cannot be used together")
 		return
 	}
 
-	if onlyVideoRoot && options.FilterName != "" {
-		pterm.Error.Println("The flags --only-video-root (-o) and --filter-name (-n) cannot be used together")
+	if onlyCountVideoRoot && options.FilterName != "" {
+		pterm.Error.Println("The flags --only-count-video-root (-o) and --filter-name (-n) cannot be used together")
 		return
 	}
 
