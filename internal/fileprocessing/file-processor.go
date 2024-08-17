@@ -85,12 +85,12 @@ func processDirEntries(entries []os.DirEntry, dir string, isVideoRoot bool, opti
 		if entry.IsDir() {
 			if shouldProcessSubDir(entry.Name(), isVideoRoot, options) {
 				wg.Add(1)
-				go processDir(path, (isVideoRoot || options.OnlyVideoRoot && entry.Name() == options.FilterName), options, fileType, wg, progressBar, results, mutex, errChan)
+				go processDir(path, (isVideoRoot || options.OnlyCountVideoRoot && entry.Name() == options.FilterName), options, fileType, wg, progressBar, results, mutex, errChan)
 			}
 			continue
 		}
 
-		if options.OnlyVideoRoot && !isVideoRoot {
+		if options.OnlyCountVideoRoot && !isVideoRoot {
 			progressBar.Increment()
 			continue
 		}
@@ -137,7 +137,7 @@ func processDir(dir string, isVideoRoot bool, options *types.CommandOptions, fil
 }
 
 func shouldProcessSubDir(name string, isVideoRoot bool, options *types.CommandOptions) bool {
-	if options.OnlyVideoRoot {
+	if options.OnlyCountVideoRoot {
 		return name == options.FilterName || !isVideoRoot
 	}
 	return true
@@ -200,7 +200,7 @@ func countFiles(dir string, isVideoRoot bool, options *types.CommandOptions) (in
 	for _, entry := range entries {
 		if entry.IsDir() {
 			newIsVideoRoot := isVideoRoot
-			if options.OnlyVideoRoot {
+			if options.OnlyCountVideoRoot {
 				newIsVideoRoot = true
 			}
 			count, err := countFiles(filepath.Join(dir, entry.Name()), newIsVideoRoot, options)
@@ -208,7 +208,7 @@ func countFiles(dir string, isVideoRoot bool, options *types.CommandOptions) (in
 				return 0, err
 			}
 			totalFiles += count
-		} else if !options.OnlyVideoRoot || isVideoRoot {
+		} else if !options.OnlyCountVideoRoot || isVideoRoot {
 			totalFiles++
 		}
 	}
@@ -242,7 +242,7 @@ func formatResults(files map[string]*types.FileInfo, options *types.CommandOptio
 		totalSize += info.Size
 
 		// Only append individual results if not in OnlyRoot mode
-		if !options.OnlyRoot {
+		if !options.OnlyDisplayRoot {
 			directoryResults = append(directoryResults, types.DirectoryResult{
 				Directory: dir,
 				FileInfo:  *info,
@@ -251,7 +251,7 @@ func formatResults(files map[string]*types.FileInfo, options *types.CommandOptio
 	}
 
 	// If OnlyRoot is true, add a single summary entry
-	if options.OnlyRoot {
+	if options.OnlyDisplayRoot {
 		directoryResults = append(directoryResults, types.DirectoryResult{
 			Directory: options.RootDirectory,
 			FileInfo:  types.FileInfo{Count: totalCount, Size: totalSize},

@@ -14,11 +14,12 @@ type DirectoryResult struct {
 
 // CommandOptions represents the command line options.
 type CommandOptions struct {
-	FileType       string
-	FilterName     string
-	OnlyRoot       bool
-	OnlyVideoRoot  bool
-	RootDirectory  string
-	SortColumn     string
-	SortDescending bool
+	DisplayDetailedResults bool
+	FileType           string
+	FilterName         string
+	OnlyCountVideoRoot bool
+	OnlyDisplayRoot    bool
+	RootDirectory      string
+	SortColumn         string
+	SortDescending     bool
 }

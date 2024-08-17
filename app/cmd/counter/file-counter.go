@@ -3,12 +3,14 @@ package main
 import (
 	"file-counter/internal/fileprocessing"
 	"file-counter/internal/types"
+
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	commonTypes "github.com/ondrovic/common/types"
 	commonUtils "github.com/ondrovic/common/utils"
+	commonCli "github.com/ondrovic/common/utils/cli"
 	commonFormatters "github.com/ondrovic/common/utils/formatters"
 	commonResults "github.com/ondrovic/common/utils/results"
 )
@@ -96,10 +98,11 @@ func init() {
 
 	registerBoolFlag(rootCmd, "sort-descending", "d", false, "Whether to sort results by count in descending order", &options.SortDescending)
 	registerStringFlag(rootCmd, "sort-column", "s", "Count", "The column to sort results by\n (Choices: count, directory, size)", &options.SortColumn, nil)
-	registerBoolFlag(rootCmd, "only-root", "r", false, "Only display root folder with count", &options.OnlyRoot)
-	registerBoolFlag(rootCmd, "only-video-root", "o", false, "Only count files in the root of Videos folders", &options.OnlyVideoRoot)
+	registerBoolFlag(rootCmd, "only-display-root", "r", false, "Only display root folder in results", &options.OnlyDisplayRoot)
+	registerBoolFlag(rootCmd, "only-count-video-root", "o", false, "Only count files in the root of Videos folders", &options.OnlyCountVideoRoot)
 	registerStringFlag(rootCmd, "file-type", "t", string(commonTypes.FileTypes.Any), "File type to count\n (Choices: any, video, image, archive, documents)", &options.FileType, nil)
 	registerStringFlag(rootCmd, "filter-name", "n", "", "Name to filter by, filters both file and directory", &options.FilterName, nil)
+	registerBoolFlag(rootCmd, "display-detailed-results", "l", false, "Display detailed results", &options.OnlyCountVideoRoot)
 
 	rootCmd.MarkFlagsMutuallyExclusive("only-root", "only-video-root")
 
@@ -138,7 +141,7 @@ func runCounter(cmd *cobra.Command, args []string) {
 
 	fileType := commonUtils.ToFileType(options.FileType)
 
-	if options.OnlyVideoRoot {
+	if options.OnlyCountVideoRoot {
 		options.FilterName = "Videos"
 	}
 
@@ -163,7 +166,7 @@ func runCounter(cmd *cobra.Command, args []string) {
 }
 
 func main() {
-	if err := commonUtils.ApplicationBanner(&application, commonUtils.ClearTerminalScreen); err != nil {
+	if err := commonCli.ApplicationBanner(&application, commonCli.ClearTerminalScreen); err != nil {
 		pterm.Error.Print(err)
 		return
 	}
